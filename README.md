@@ -22,3 +22,8 @@ It's stored in `config.json`, and it's just a basic cradle config object. Mine l
 	}
 }
 ```
+
+## run it
+
+`node index.js`
+
