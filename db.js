@@ -5,6 +5,9 @@ try{
   process.exit(1);
 }
 
+// config.cache = false;
+config.raw = true;
+
 var cradle = require('cradle'),
   db = new(cradle.Connection)(config.host, config.port, config).database(config.database);
 
