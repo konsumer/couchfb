@@ -1,15 +1,7 @@
-try{
-  config = require('./config.json')
-}catch(e){
-  console.log('You must create a config.json file. Please see README.md for more info.');
-  process.exit(1);
-}
-
-var cradle = require('cradle'),
+var db = require('./db'),
   readline = require('readline'),
   path = require('path'),
   fs = require('fs'),
-  db = new(cradle.Connection)(config.host, config.port, config).database(config.database),
   RateLimiter = require('limiter').RateLimiter,
   limiter = new RateLimiter(20, 'second'); // no more than 20 requests per second
 
