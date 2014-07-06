@@ -1,0 +1,10 @@
+{
+  "name": "couchfb",
+  "version": "0.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "cradle": "^0.6.7",
+    "limiter": "^1.0.5"
+  }
+}
