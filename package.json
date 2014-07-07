@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "cradle": "^0.6.7",
+    "line-by-line": "^0.1.1",
     "poolr": "0.0.9"
   }
 }
