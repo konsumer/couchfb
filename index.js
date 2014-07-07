@@ -1,7 +1,9 @@
 var db = require('./db'),
   readline = require('readline'),
   path = require('path'),
-  fs = require('fs');
+  fs = require('fs'),
+  poolr  = require('poolr').createPool,
+  couchPool = poolr(2, db);
 
 var types = {
   'first':'facebook-firstnames-withcount',
@@ -32,10 +34,11 @@ function processFile(type){
       record.count = Number(i[0]);
     }
 
-    db.save(record, function(er, res){
+    couchPool.addTask(db.save, record, function(er, res) {
       if (er) console.log('Error: ', er);
       console.log(res);
       rd.resume();
+      delete record;
     });
   });
 }
