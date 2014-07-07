@@ -1,9 +1,7 @@
 var db = require('./db'),
   readline = require('readline'),
   path = require('path'),
-  fs = require('fs'),
-  poolr  = require('poolr').createPool,
-  couchPool = poolr(2, db);
+  fs = require('fs');
 
 var types = {
   'first':'facebook-firstnames-withcount',
@@ -22,9 +20,9 @@ function processFile(type){
   });
   
   rd.on('line', function(line) {
-    var record = {
-      type: type
-    };
+    rd.pause();
+
+    var record = { type: type };
     
     if (type == 'full'){
       record.name = line.trim().split(' ');
@@ -33,10 +31,11 @@ function processFile(type){
       record.name = i[1].trim();
       record.count = Number(i[0]);
     }
-    
-    couchPool.addTask(db.save, record, function(er, res) {
-      if (er) return console.log('Error: ', er);
+
+    db.save(record, function(er, res){
+      if (er) console.log('Error: ', er);
       console.log(res);
+      rd.resume();
     });
   });
 }
