@@ -1,31 +1,26 @@
-var db = require('./db'),
-  readline = require('readline'),
+var LineByLineReader = require('line-by-line'),
   path = require('path'),
-  fs = require('fs'),
-  poolr  = require('poolr').createPool,
-  couchPool = poolr(2, db);
+  db = require('./db')
 
-var types = {
-  'first':'facebook-firstnames-withcount',
-  'last':'facebook-lastnames-withcount',
-  'full':'facebook-names-unique'
-};
-
-// process a text file, insert in couch
+// line-by-line read file, turn into a couch record
 function processFile(type){
   var fname = path.join('data', types[type] + '.txt');
-  
-  var rd = readline.createInterface({
-    input: fs.createReadStream(fname),
-    output: process.stdout,
-    terminal: false
-  });
-  
-  rd.on('line', function(line) {
-    rd.pause();
+  var lr = new LineByLineReader(fname, {skipEmptyLines: true});
 
+  lr.on('error', function (err) {
+    console.log('Error:');
+    console.log(err);
+  });
+
+  lr.on('record', function (record) {
+    console.log('Saved:');
+    console.log(record);
+  });
+
+  lr.on('line', function (line) {
+    lr.pause();
     var record = { type: type };
-    
+
     if (type == 'full'){
       record.name = line.trim().split(' ');
     }else{
@@ -34,14 +29,19 @@ function processFile(type){
       record.count = Number(i[0]);
     }
 
-    couchPool.addTask(db.save, record, function(er, res) {
-      if (er) console.log('Error: ', er);
-      console.log(res);
-      rd.resume();
-      delete record;
-    });
+    db.save(record, function(er, res){
+      if (er) lr.emit('error', er, record);
+      if (res) lr.emit('record', record);
+      lr.resume();
+    })
   });
 }
+
+var types = {
+  'first':'facebook-firstnames-withcount',
+  'last':'facebook-lastnames-withcount',
+  'full':'facebook-names-unique'
+};
 
 for (type in types){
   processFile(type);
